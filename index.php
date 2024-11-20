@@ -21,8 +21,23 @@ $mobno = mysqli_real_escape_string($conn, $_GET['mobno']);
             A simple success alert—check it out!
            </div>";
 }
+// check for delete data is comming or not
+if((isset($_GET["action"]))&&($_GET['action']=='delete')){
+// always filter and sanitize the data
+$id = (int)mysqli_real_escape_string($conn, $_GET['deleteid']);
+
+   // Build the query the 
+   $sql = "DELETE FROM `data_tbl` WHERE id ='$id'";
+   // executre the query
+   $result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+   // delete the query
+ $msg = "<div class='alert alert-success' role='alert'>
+data delete deleted successfully
+</div>";
+}
 ?>
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -34,6 +49,49 @@ $mobno = mysqli_real_escape_string($conn, $_GET['mobno']);
 </head>
 
 <body>
+    <!-- Button trigger modal -->
+    <!-- <button type="button" class="btn btn-primary">
+        Launch demo modal
+    </button> -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table mytble">
+                        <thead>
+                            <tr>
+                                <th scope="col">id</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Surname</th>
+                                <th scope="col">Address</th>
+                                <th scope="col">Mobile No.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>1234567890</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <form class="w-50 offset-3 mt-3" action="<?php
       echo $_SERVER['PHP_SELF'] ?>" method="GET">
         <h1 class="text-center">This is CRUD operation in php</h1>
@@ -72,10 +130,10 @@ $mobno = mysqli_real_escape_string($conn, $_GET['mobno']);
         $rowcont = mysqli_num_rows($result);
         $row = '';
         if($rowcont>0){
-            // $row = mysqli_fetch_array($result,MYSQLI_ASSOC);
+            // $row = mysqli_fetch_array($result,MYSQLI_ASSOC); data-bs-toggle="modal" data-bs-target="#exampleModal"
             while($row2 = mysqli_fetch_assoc($result)){// Assoicative array there is value is stored in the form of the key value pair
                 // echo "<pre>";
-                //     var_dump($row);
+                //     var_dump($row);"
                 // echo "</pre>"; 
               $row = $row.'
                          <tr>
@@ -85,12 +143,12 @@ $mobno = mysqli_real_escape_string($conn, $_GET['mobno']);
                              <td>'.$row2['address'].'</</td>
                              <td>'.$row2['modno'].'</</td>
                              <td>
-                                 <button class="btn btn-success">View</button>
-                                 <button class="btn btn-warning">Edit</button>
-                                 <button class="btn btn-danger">Delete</button>
+                                 <a href="#" class="btn btn-success btn-sm viewbtn" type="button"  ">View</a>
+                                 <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                                 <a href="?action=delete&deleteid='.$row2['id'].'" class="btn btn-danger btn-sm">Delete</a>
                              </td>
                           </tr>
-                          '  ;
+                          ';
             }
             // 
         }else{
@@ -131,7 +189,20 @@ $mobno = mysqli_real_escape_string($conn, $_GET['mobno']);
     </script>
     <script>
     $(document).ready(function() {
-        // alert("data is loaded successfully")
+        $(document).on('click', 'a.viewbtn', function() {
+            $('.mytble>tbody>tr>td:first-child').innerHTML = this.closest('tr').querySelector(
+                'td:first-child').textContent;
+            $('.mytble>tbody>tr>td:nth-child(2)').innerHTML = this.closest('tr').querySelector(
+                'td:nth-child(2)').textContent;
+            $('.mytble>tbody>tr>td:nth-child(3)').innerHTML = this.closest('tr').querySelector(
+                'td:nth-child(3)').textContent;
+            $('.mytble>tbody>tr>td:nth-child(4)').innerHTML = this.closest('tr').querySelector(
+                'td:nth-child(4)').textContent;
+            $('.mytble>tbody>tr>td:nth-child(5)').innerHTML = this.closest('tr').querySelector(
+                'td:nth-child(5)').textContent;
+
+        })
+
     })
     </script>
 </body>
