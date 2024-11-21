@@ -1,7 +1,7 @@
 <?php
 // Check for the incomming data
 // Open the DB connection 
-$msg ='';
+$msg =$row='';
 $conn = mysqli_connect("localhost","root","","crud_db") or die(mysqli_error($conn));
 if(isset($_GET['datauploaded'])){
     // Get the data and filiter and sanitize it
@@ -34,6 +34,45 @@ $id = (int)mysqli_real_escape_string($conn, $_GET['deleteid']);
  $msg = "<div class='alert alert-success' role='alert'>
 data delete deleted successfully
 </div>";
+
+}
+if((isset($_GET["action"]))&&($_GET["action"]== "edit")){
+    // always filter and sanitize the data from the query string
+    $id = (int)mysqli_real_escape_string($conn, $_GET['editid']);
+    
+    // Build the query 
+    $sql = "SELECT * FROM data_tbl WHERE id ='$id'";
+
+    // Execute the query
+    $result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+    // Check number of rows returned
+    $norow = mysqli_num_rows($result);
+if($norow>0){
+   $row = mysqli_fetch_row($result);
+   
+}
+
+
+
+}
+if(isset($_GET['dataedit'])){
+    // Always filter and sanitize the data 
+    $id = (int)mysqli_real_escape_string($conn, $_GET['editid']);
+    $name = mysqli_real_escape_string($conn, $_GET['name']);
+    $surname = mysqli_real_escape_string($conn, $_GET['surname']);
+    $addr = mysqli_real_escape_string($conn, $_GET['addr']);
+    $mobno = mysqli_real_escape_string($conn, $_GET['mobno']);
+    // build the query
+    $sql = "UPDATE data_tbl SET name ='$name',surname='$surname',address='$addr',modno='$mobno' WHERE id ='$id'";
+    // Execute the query
+    $result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+    // display the results
+    $msg ="<div class='alert alert-success' role='alert'>
+            Data updated successfully
+           </div>";
+
+
+  
 }
 ?>
 <!DOCTYPE html>
@@ -94,29 +133,38 @@ data delete deleted successfully
     </div>
     <form class="w-50 offset-3 mt-3" action="<?php
       echo $_SERVER['PHP_SELF'] ?>" method="GET">
-        <h1 class="text-center">This is CRUD operation in php</h1>
+        <h1 class="text-center">
+            User <?php echo ((isset($_GET['action']))&&($_GET['action']=='edit'))?'Update':'Registartion' ?>
+        </h1>
         <?php
         echo $msg;
         ?>
+        <input type="hidden" name="editid" id="" value="<?php echo is_array($row)? $row[0]:''?>">
         <div class="mb-3">
             <label for="name" class="form-label">Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
+            <input type="text" class="form-control" id="name" name="name"
+                value="<?php echo is_array($row)? $row[1]:''?>" required>
 
         </div>
         <div class="mb-3">
             <label for="surname" class="form-label">surname</label>
-            <input type="text" class="form-control" id="surname" name="surname" required>
+            <input type="text" class="form-control" id="surname" name="surname"
+                value="<?php echo is_array($row)? $row[2]:''?>" required>
         </div>
         <div class="mb-3">
             <label for="addr" class="form-label">Address</label>
-            <input type="text" class="form-control" id="addr" name="addr" required>
+            <input type="text" class="form-control" id="addr" name="addr"
+                value="<?php echo is_array($row)? $row[3]:''?>" required>
         </div>
         <div class="mb-3">
             <label for="mobnp" class="form-label">Mobile No</label>
-            <input type="text" class="form-control" id="mobno" name="mobno" required>
+            <input type="text" class="form-control" id="mobno" name="mobno"
+                value="<?php echo is_array($row)? $row[4]:''?>" required>
         </div>
 
-        <button type="submit" class="btn btn-primary" name="datauploaded">Submit</button>
+        <button type="submit" class="btn btn-primary"
+            name=" <?php echo ((isset($_GET['action']))&&($_GET['action']=='edit'))?'dataedit':'datauploaded' ?>">
+            <?php echo ((isset($_GET['action']))&&($_GET['action']=='edit'))?'Update':'submit' ?></button>
     </form>
 
     <div class="container mt-4">
@@ -144,7 +192,7 @@ data delete deleted successfully
                              <td>'.$row2['modno'].'</</td>
                              <td>
                                  <a href="#" class="btn btn-success btn-sm viewbtn" type="button"  ">View</a>
-                                 <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                                 <a href="?action=edit&editid='.$row2['id'].'" class="btn btn-warning btn-sm">Edit</a>
                                  <a href="?action=delete&deleteid='.$row2['id'].'" class="btn btn-danger btn-sm">Delete</a>
                              </td>
                           </tr>
@@ -189,21 +237,19 @@ data delete deleted successfully
     </script>
     <script>
     $(document).ready(function() {
-        $(document).on('click', 'a.viewbtn', function() {
-            $('.mytble>tbody>tr>td:first-child').innerHTML = this.closest('tr').querySelector(
-                'td:first-child').textContent;
-            $('.mytble>tbody>tr>td:nth-child(2)').innerHTML = this.closest('tr').querySelector(
-                'td:nth-child(2)').textContent;
-            $('.mytble>tbody>tr>td:nth-child(3)').innerHTML = this.closest('tr').querySelector(
-                'td:nth-child(3)').textContent;
-            $('.mytble>tbody>tr>td:nth-child(4)').innerHTML = this.closest('tr').querySelector(
-                'td:nth-child(4)').textContent;
-            $('.mytble>tbody>tr>td:nth-child(5)').innerHTML = this.closest('tr').querySelector(
-                'td:nth-child(5)').textContent;
+                $(document).on('click', 'a.viewbtn', function() {
+                    $('.mytble>tbody>tr>td:first-child').innerHTML = this.closest('tr').querySelector(
+                        'td:first-child').textContent;
+                    $('.mytble>tbody>tr>td:nth-child(2)').innerHTML = this.closest('tr').querySelector(
+                        'td:nth-child(2)').textContent;
+                    $('.mytble>tbody>tr>td:nth-child(3)').innerHTML = this.closest('tr').querySelector(
+                        'td:nth-child(3)').textContent;
+                    $('.mytble>tbody>tr>td:nth-child(4)').innerHTML = this.closest('tr').querySelector(
+                        'td:nth-child(4)').textContent;
+                    $('.mytble>tbody>tr>td:nth-child(5)').innerHTML = this.closest('tr').querySelector(
+                        'td:nth-child(5)').textContent;
 
-        })
-
-    })
+                })
     </script>
 </body>
 
